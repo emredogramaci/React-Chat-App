@@ -9,8 +9,10 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 const Register = () => {
   const navigate = useNavigate();
   const [err, setErr] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
     const displayName = e.target[0].value;
     const email = e.target[1].value;
@@ -19,33 +21,35 @@ const Register = () => {
 
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
+      const date = new Date().getTime();
       const storageRef = ref(storage, displayName);
-      const uploadTask = uploadBytesResumable(storageRef, file);
 
-      uploadTask.on(
-        (error) => {
-          setErr(true);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+      await uploadBytesResumable(storageRef, file).then(() => {
+        getDownloadURL(storageRef).then(async (downladURL) => {
+          try {
             await updateProfile(res.user, {
               displayName,
-              photoURL: downloadURL,
+              photoURL: downladURL,
             });
+            //Create Firestore files
             await setDoc(doc(db, "users", res.user.uid), {
               uid: res.user.uid,
               displayName,
               email,
-              photoURL: downloadURL,
+              photoURL: downladURL,
             });
-
             await setDoc(doc(db, "userChats", res.user.uid), {});
             navigate("/");
-          });
-        }
-      );
+          } catch (err) {
+            console.log(err);
+            setErr(true);
+            setLoading(false);
+          }
+        });
+      });
     } catch (err) {
       setErr(true);
+      setLoading(false);
     }
   };
 
@@ -64,6 +68,7 @@ const Register = () => {
             <span>Add an Avatar</span>
           </label>
           <button>Sign Up</button>
+          {loading && "Loading... Please Wait..."}
           {err && <span>Error</span>}
         </form>
         <p>

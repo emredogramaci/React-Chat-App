@@ -15,6 +15,7 @@ import {
 
 const Search = () => {
   const [username, setUserName] = useState("");
+  const [search, setSearch] = useState("");
   const [user, setUser] = useState(null);
   const [err, setErr] = useState(false);
 
@@ -88,7 +89,7 @@ const Search = () => {
         />
       </div>
       {err && <span>User not found!</span>}
-      {user && (
+      {username && (
         <div className="userChat" onClick={handleSelect}>
           <img src={user.photoURL} alt="" />
           <div className="userChatInfo">

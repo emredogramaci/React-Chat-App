@@ -309,11 +309,16 @@
       }
     }
   }
+}
+
+.footermain {
+  display: flex;
+  justify-content: center;
   .footer {
-    position: absolute;
-    bottom: 0;
     display: flex;
+    position: absolute;
     text-align: center;
+    bottom: 0;
     font-size: 18px;
     font-weight: bold;
 
@@ -341,5 +346,9 @@
         color: blue;
       }
     }
+  }
+  @include tablet {
+    display: flex;
+    justify-content: start;
   }
 }
